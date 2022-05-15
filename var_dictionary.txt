@@ -1,0 +1,64 @@
+(1) teach_data_p_char_final.txt
+Data description: 募款专案介绍
+project characteristics, one row is one project, sorted by pid_teach. Column descriptions are as follows.
+
+1. pid_teach: 计划id
+2. first_donation_date: 捐赠开始日期
+3. target: 募款金额
+4. NPO: if the project is initiated by a Non-Profit-Organization (NPO) then NPO = 1; otherwise, if it is initiated by an individual, then NPO = 0.
+5. cateName: 募款目的
+6. proj_province: 被捐赠者所在省份
+7. objTagName: 被捐赠者身份种类 ("None" means no tag)
+8. cateTagName: 募款原因 ("None" means no tag)
+
+(2) teach_data_yqj_char_final.txt
+Data description: 一起捐project的特性
+yqj characteristics, one row is one yqj, sorted by pid_teach then yqjid_teach. Column descriptions are as follows.
+
+1. pid_teach: yqj 的project ID
+2. yqjid_teach: yqj的id
+3. yqj_initiator_nickid: yqj 发起者id
+4. target: yqj目标募款金额 ("0" means no target was set)
+
+(3) teach_data_final.txt
+Data description: 每个专案的捐赠记录
+donation history for each project, one row is one donation, sorted by pid_teach then date then time then nickid. Column descriptions are as follows.
+
+1. pid_teach: project ID
+2. date: 捐赠日期
+3. time: 捐赠时间
+4. nickid: 捐赠者代号 ("1" means anonymous)
+5. money: 捐赠金额
+6. organic: "1" means it is an 主页面捐赠, "0" means it is from yqj
+7. yqjid_teach: "0" means the donation is not from yqj, otherwise it is the yqj ID where the donation is from
+
+(4) teach_data_p_desc.txt
+Data description: 专案名称和介绍
+project title and descrpition, one row is one project, sorted by pid_teach. Column descriptions are as follows.
+
+1. pid_teach: project ID 专案代号
+2. title: title of the project 专案名称
+3. desc: description of the project 专案介绍
+
+有没有设立目标$会不会比较多
+匿名和$有没有关系
+哪种病更容易得到捐款?
+NPO发起的是不是更容易拿到钱?
+
+mapping:
+每个专案的实际募款金额
+每个yqj分别募到多少钱
+
+单个专案
+假设一个人在一个专案捐一次
+yqj总金额/一个专案里面的捐款次数有多少是一起捐的
+不是一起捐的总金额/一个专案里面的捐款次数不是一起捐的
+
+
+
+情绪分数计算落差越大 钱越多?
+
+
+
+
+
