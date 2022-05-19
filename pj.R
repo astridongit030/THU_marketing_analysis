@@ -22,7 +22,7 @@ teach_data_p_char_final<- teach_data_p_char_final %>%
 
 
 teach_data_p_char_final$yqj_or_not <- as.numeric(teach_data_p_char_final$yqj_or_not)
-table(teach_data_p_char_final$yqj_or_not)
+
 
 ## 每个项目募到多少钱 teach_data_final
 
@@ -80,101 +80,116 @@ df <- df %>%
     yqj_donation_count = total_donation_count - mainpage_donation_count,
     not_yqj_donation = all_donation - yqj_donation,
     avg_yqj = yqj_donation/yqj_donation_count,
-    avg_mainpage = not_yqj_donation/mainpage_donation_count
+    avg_mainpage = not_yqj_donation/mainpage_donation_count,
+    avg_total = all_donation/total_donation_count,
+    yqj_percent = yqj_donation/all_donation
   )
-
-setwd('C:/Users/asus/Desktop/code/THU/marketing_analytics')
-write.csv(df, file = 'df.csv')
-
-
-
-
-
-
 
 
 #叙述统计 teach_data_p_char_final
 
-## NPO
-
-#NPO数量
-table(teach_data_p_char_final$NPO)
-### 未添加标记
-
-teach_data_p_char_final$NPO <- as.character(teach_data_p_char_final$NPO)
-teach_data_p_char_final$target <- as.numeric(teach_data_p_char_final$target)
-teach_data_p_char_final <- teach_data_p_char_final %>%
-  mutate(target_thousand = target/1000)
-
-teach_data_p_char_final %>%
-  ggplot() + 
-  geom_bar(aes(x=NPO)) + 
-  labs(x = "NPO=1为NPO发起，其余为0", y="count")
-
-#以NPO分组，target分布
-
-teach_data_p_char_final %>%
-  ggplot(aes(x = NPO, y = target_thousand)) +
-  geom_point(aes(color = NPO))
-
-teach_data_p_char_final %>%
-  group_by(NPO) %>%
-  summarise(total = sum(target_thousand),
-            max = max(target_thousand),
-            min = min(target_thousand))
-
-#NPO的募款目的集中于哪些cateName
-
-teach_data_p_char_final %>%
-  ggplot() +
-  geom_bar(mapping = aes(x = NPO, color = cateName),position = "dodge")
-
-##cateName 募款目的
-
-#件数
-table(teach_data_p_char_final$cateName)
-
-teach_data_p_char_final %>%
-  ggplot() + 
-  geom_bar(aes(x=cateName))
-
-#以cateName分组，募款金额统计(eg平均数)
-
-teach_data_p_char_final %>%
-  group_by(cateName) %>%
-  summarise(total = sum(target_thousand),
-            max = max(target_thousand),
-            min = min(target_thousand))
-
-##proj_province
-
-#件数
-
-df_province <- teach_data_p_char_final %>% 
-  count(proj_province, sort = TRUE)
-
-df_province %>%
-  ggplot() + 
-  geom_bar(aes(x=reorder(proj_province,n), y=n), stat = "identity") + 
-  coord_flip()
-
-teach_data_p_char_final$pid_teach <- as.numeric(teach_data_p_char_final$pid_teach)
-teach_data_yqj_char_final$pid_teach <- as.numeric(teach_data_yqj_char_final$pid_teach)
-
-
-#以省份分组，cateName统计
-
-#以省份分组，objTagName统计
-#以省份分组，target统计
-
-##objTagName
-
-#件数
-#以objTagName分组(>100)，省份统计
-
-##cateTagName
-
-#件数
 
 
 
+##去除離群值(只捐一次的)
+c <- aggregate(x= teach_data_final$pid_teach,
+               by= list(count = teach_data_final$pid_teach),
+               FUN=length)
+once <- which(c$x == 1)
+
+df2 <- df[-once,]
+
+
+## avg_total
+
+### NPO
+
+df2$NPO <- as.character(df2$NPO)
+
+df2 %>%
+  ggplot(aes(x = NPO,y = avg_total)) + 
+  geom_boxplot()
+
+
+### yqj比例
+
+df2 %>%
+  ggplot(aes(x = yqj_percent,y = avg_total)) + 
+  geom_point()
+
+
+### cateName的分布
+
+df %>%
+  ggplot(aes(x = cateName,y = avg_total)) + 
+  geom_boxplot()
+
+### target level
+#1200<=i<60000:1,   
+#60000<=x<150000:2,  
+#150000<=x<298000:3, 
+#298000<=x<15760000:4
+
+df2$target <- as.numeric(df2$target)
+df2$target <- ifelse(df2$target<60000, 1, ifelse(df2$target<150000, 2, ifelse(df2$target<298000,3,4)))
+df2$target <- as.factor(df2$target)
+
+df2 %>%
+  ggplot(aes(x = target,y = avg_total)) + 
+  geom_boxplot()
+
+
+### GDPlevel
+
+fourth <- c("北京","上海","江苏","福建","浙江","湖北")
+third <- c("重庆","内蒙古","山东","陕西","安徽","湖南","江西","辽宁")
+sec <- c("山西","四川","海南","宁夏","新疆","河南","云南","西藏","全国","中西部地区")
+
+df2$proj_province[df2$proj_province %in% fourth] <- 4
+df2$proj_province[df2$proj_province %in% third] <- 3
+df2$proj_province[df2$proj_province %in% sec] <- 2
+df2$proj_province[!(df2$proj_province %in% c("4","3","2"))] <- 1
+
+df2 %>%
+  ggplot(aes(x = proj_province,y = avg_total)) + 
+  geom_boxplot()
+
+
+## completion rate
+
+### NPO
+
+df2 %>%
+  ggplot(aes(x = NPO,y = completion_rate)) + 
+  geom_boxplot()
+
+### yqj比例
+
+df2 %>%
+  ggplot(aes(x = yqj_percent,y = completion_rate)) + 
+  geom_point()
+
+### cateName的分布
+
+df2 %>%
+  ggplot(aes(x = cateName,y = completion_rate)) + 
+  geom_boxplot()
+
+### GDPlevel
+
+df2 %>%
+  ggplot(aes(x = proj_province,y = completion_rate)) + 
+  geom_boxplot()
+
+
+#others
+### yqj比例, cateName
+df2 %>%
+  ggplot(aes(x = cateName,y = yqj_percent)) + 
+  geom_boxplot()
+
+## completion rate 和 proj_province
+
+df %>% 
+  ggplot(aes(x = completion_rate,y = proj_province)) + 
+  geom_boxplot()
